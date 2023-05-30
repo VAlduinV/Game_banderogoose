@@ -1,6 +1,9 @@
 import random
 import pygame
 from pygame.constants import QUIT, K_DOWN, K_UP, K_LEFT, K_RIGHT
+import logging
+
+logging.basicConfig(level=logging.INFO, filename='game.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 pygame.init()
 
@@ -23,45 +26,35 @@ bg_X2 = bg.get_width()
 bg_move = 3
 
 PLAYER_IMAGES = []
-for i in range(1, 7):  # Загрузка изображений player1.png, player2.png, player3.png, player4.png
+for i in range(1, 7):
     image = pygame.image.load(f'Goose/1-{i}.png').convert_alpha()
     PLAYER_IMAGES.append(image)
 
 BOMB_IMAGES = []
-for i in range(1, 3):  # Загрузка изображений player1.png, player2.png, player3.png, player4.png
+for i in range(1, 3):
     bomb_image = pygame.image.load(f'Bomb/1-{i}.png').convert_alpha()
     BOMB_IMAGES.append(bomb_image)
 
 player_size = (20, 20)
-player = pygame.image.load('player.png').convert_alpha()  # pygame.Surface(player_size)
-# player.fill(COLOR_BlACK)
+player = pygame.image.load('player.png').convert_alpha()
 player_rect = player.get_rect()
 player_rect.center = main_display.get_rect().center
 
-# enemy.fill(COLOR_BLUE)
-
-# player_speed = [1, 1]
 player_move_down = [0, 4]
 player_move_up = [0, -4]
 player_move_right = [4, 0]
 player_move_left = [-4, 0]
 
-
 def create_enemy():
-    # enemy_size = (30, 30)
-    enemy = pygame.image.load('enemy.png').convert_alpha()  # pygame.Surface(enemy_size)
-    # enemy.fill(COLOR_BLUE)
+    enemy = pygame.image.load('enemy.png').convert_alpha()
     enemy_rect = pygame.Rect(WIDTH,
                              random.randint(enemy.get_height(), HEIGHT - enemy.get_height()),
                              *enemy.get_size())
     enemy_move = [random.randint(-8, -4), 0]
     return [enemy, enemy_rect, enemy_move]
 
-
 def create_bonus():
-    # bonus_size = (30, 30)
-    bonus = pygame.image.load('bonus.png').convert_alpha()  # pygame.Surface(bonus_size)
-    # bonus.fill(COLOR_GREEN)
+    bonus = pygame.image.load('bonus.png').convert_alpha()
     bonus_width = bonus.get_width()
     bonus_rect = pygame.Rect(random.randint(bonus_width, WIDTH - bonus_width),
                              -bonus.get_height(),
@@ -69,10 +62,9 @@ def create_bonus():
     bonus_move = [0, random.randint(4, 8)]
     return [bonus, bonus_rect, bonus_move]
 
-
 CREATE_ENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(CREATE_ENEMY, 1500)
-CREATE_BONUS = pygame.USEREVENT + 2  # CREATE_ENEMY + 1
+CREATE_BONUS = pygame.USEREVENT + 2
 pygame.time.set_timer(CREATE_BONUS, 3000)
 CHANGE_IMG = pygame.USEREVENT + 3
 pygame.time.set_timer(CHANGE_IMG, 125)
@@ -108,7 +100,6 @@ while playing:
                 bomb_index = 0
             enemy = BOMB_IMAGES[bomb_index]
 
-    # main_display.fill(COLOR_BlACK)
     bg_X1 -= bg_move
     bg_X2 -= bg_move
 
@@ -140,6 +131,7 @@ while playing:
         main_display.blit(BOMB_IMAGES[bomb_index], enemy[1])
         if player_rect.colliderect(enemy[1]):
             playing = False
+            logging.info("Player collided with an enemy.")
 
     for bonus in bonuses:
         bonus[1] = bonus[1].move(bonus[2])
@@ -148,6 +140,7 @@ while playing:
         if player_rect.colliderect(bonus[1]):
             score += 1
             bonuses.pop(bonuses.index(bonus))
+            logging.info("Player collected a bonus. Score increased.")
 
     main_display.blit(FONT.render(str(score), True, "RED"), (WIDTH - 50, 20))
     main_display.blit(PLAYER_IMAGES[img_index], player_rect)
@@ -160,3 +153,8 @@ while playing:
     for bonus in bonuses:
         if bonus[1].top > HEIGHT:
             bonuses.pop(bonuses.index(bonus))
+
+    logging.info(f'Enemy count: {len(enemies)}')
+    logging.info(f'Bonus count: {len(bonuses)}')
+
+pygame.quit()
