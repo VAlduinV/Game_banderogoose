@@ -3,7 +3,8 @@ import pygame
 from pygame.constants import QUIT, K_DOWN, K_UP, K_LEFT, K_RIGHT
 import logging
 
-logging.basicConfig(level=logging.INFO, filename='game.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, filename='game.log', filemode='w',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 pygame.init()
 
@@ -45,6 +46,7 @@ player_move_up = [0, -4]
 player_move_right = [4, 0]
 player_move_left = [-4, 0]
 
+
 def create_enemy():
     enemy = pygame.image.load('enemy.png').convert_alpha()
     enemy_rect = pygame.Rect(WIDTH,
@@ -53,14 +55,16 @@ def create_enemy():
     enemy_move = [random.randint(-8, -4), 0]
     return [enemy, enemy_rect, enemy_move]
 
+
 def create_bonus():
-    bonus = pygame.image.load('bonus.png').convert_alpha()
+    bonus = pygame.transform.scale(pygame.image.load('bonus.png').convert_alpha(), (200, 200))
     bonus_width = bonus.get_width()
     bonus_rect = pygame.Rect(random.randint(bonus_width, WIDTH - bonus_width),
                              -bonus.get_height(),
                              *bonus.get_size())
     bonus_move = [0, random.randint(4, 8)]
     return [bonus, bonus_rect, bonus_move]
+
 
 CREATE_ENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(CREATE_ENEMY, 1500)
